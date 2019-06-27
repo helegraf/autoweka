@@ -3,6 +3,7 @@ package autoweka.smac;
 import java.util.ArrayList;
 import java.io.File;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Collections;
 import autoweka.Conditional;
@@ -24,25 +25,34 @@ public class SMACExperimentConstructor extends ExperimentConstructor
 
     public void prepareExperiment(String path)
     {
-        path = URLDecoder.decode(path);
+        try {
+			path = URLDecoder.decode(path,"UTF-8");
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
         try
         {
+        	System.out.println("print param file: " + path);
             //Print out the param file
             printParamFile(new PrintStream(new java.io.File(path + "autoweka.params")));
 
             //Write out the instance file
+            System.out.println("Write out instance file: " + path);
             printInstanceFile(new PrintStream(new java.io.File(path + "autoweka.instances")));
             printTestInstanceFile(new PrintStream(new java.io.File(path + "autoweka.test.instances")));
             printFeatureFile(new PrintStream(new java.io.File(path + "autoweka.features")));
 
             //Write out the scenario file
+            System.out.println("write out scenario file: " + path);
             printScenarioFile(new PrintStream(new java.io.File(path + "autoweka.scenario")));
 
-
+            System.out.println("Make path: " + path + "out");
             autoweka.Util.makePath(path + "out");
         }
         catch(Exception e)
         {
+        	System.out.println("cause: " + e);
             throw new RuntimeException("Failed to prepare the experiment", e);
         }
     }
@@ -57,7 +67,13 @@ public class SMACExperimentConstructor extends ExperimentConstructor
     {
         // assumes that autoweka.jar is at the root of the autoweka distribution
         // (as it will be for the WEKA package)
-        String prefix = new File(URLDecoder.decode(SMACExperimentConstructor.class.getProtectionDomain().getCodeSource().getLocation().getPath())).getParentFile().toString();
+        String prefix = null;
+		try {
+			prefix = new File(URLDecoder.decode(SMACExperimentConstructor.class.getProtectionDomain().getCodeSource().getLocation().getPath(),"UTF-8")).getParentFile().toString();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         //Make sure that the properties we have tell us where the executable for smac lives
         if(mProperties.getProperty("smacexecutable") == null)
             throw new RuntimeException("The 'smacexecutable' property was not defined");
@@ -71,7 +87,13 @@ public class SMACExperimentConstructor extends ExperimentConstructor
 
         String smac = prefix + File.separator + mProperties.getProperty("smacexecutable") + execExtension;
 
-        File f = new File(Util.expandPath(smac));
+        File f = null;
+		try {
+			f = new File(Util.expandPath(smac));
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         if(!f.exists())
             throw new RuntimeException("Could not find SMAC executable '" + f.getAbsoluteFile() + "'");
 
@@ -228,7 +250,7 @@ public class SMACExperimentConstructor extends ExperimentConstructor
         out.println("default");
     }
 
-    public void printScenarioFile(PrintStream out)
+    public void printScenarioFile(PrintStream out) throws UnsupportedEncodingException
     {
         String extraProps = "";
         if(mExperiment.extraPropsString != null && mExperiment.extraPropsString.length() > 0)

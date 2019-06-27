@@ -3,6 +3,7 @@ package autoweka;
 import javax.xml.bind.annotation.*;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -191,8 +192,9 @@ public class Experiment extends XmlSerializable
      * each SMBO method.
      *
      * @param args Any arguments.
+     * @throws UnsupportedEncodingException 
      */
-    public static void main(String[] args)
+    public static void main(String[] args) throws UnsupportedEncodingException
     {
         //Load an experiment and seed from the args
         File experiment = null;
@@ -208,7 +210,7 @@ public class Experiment extends XmlSerializable
                 //Get the experiment folder
                 expFolder = new File(args[i]).getAbsoluteFile();
                 //Get the actual experiment
-                experiment = new File(URLDecoder.decode(expFolder.getAbsolutePath()) + File.separator + expFolder.getName() + ".experiment");
+                experiment = new File(URLDecoder.decode(expFolder.getAbsolutePath(),"UTF-8") + File.separator + expFolder.getName() + ".experiment");
             }
             else if(seed == null)
                 seed = args[i];
@@ -236,11 +238,14 @@ public class Experiment extends XmlSerializable
             if(executable == null)
                 throw new RuntimeException("Failed to find the executable '" + exp.callString.get(0) + "'");
 
-            exp.callString.set(0, URLDecoder.decode(executable.getAbsolutePath()));
+            exp.callString.set(0, URLDecoder.decode(executable.getAbsolutePath(),"UTF-8"));
 
             ProcessBuilder pb = new ProcessBuilder(exp.callString);
             pb.directory(experiment.getParentFile());
             pb.redirectErrorStream(true);
+            
+            System.out.println(exp.callString);
+            System.out.println(experiment.getParentFile().getAbsolutePath());
 
             java.util.Map<String, String> env = pb.environment();
             if(exp.envVariables != null)
@@ -285,6 +290,7 @@ public class Experiment extends XmlSerializable
                 } else if(line.matches(".*WARN.*")) {
                     log.warn(line);
                 } else if(line.matches(".*ERROR.*")) {
+                	System.out.println("Ouchie");
                     log.error(line);
                 } else if(line.matches(".*Estimated mean quality of final incumbent config.*")) {
                     System.out.println(line);
@@ -296,7 +302,7 @@ public class Experiment extends XmlSerializable
             }
 
             //And we might as well do the trajectory parse
-            TrajectoryParser.main(new String[]{"-single", URLDecoder.decode(expFolder.getAbsolutePath()), seed});
+            TrajectoryParser.main(new String[]{"-single", URLDecoder.decode(expFolder.getAbsolutePath(),"UTF-8"), seed});
 
             if(!noExit)
                 System.exit(proc.waitFor());
@@ -308,9 +314,9 @@ public class Experiment extends XmlSerializable
         }
     }
 
-    public static Experiment createFromFolder(File folder)
+    public static Experiment createFromFolder(File folder) throws UnsupportedEncodingException
     {
-        File experiment = new File(URLDecoder.decode(folder.getAbsolutePath()) + File.separator + folder.getName() + ".experiment");
+        File experiment = new File(URLDecoder.decode(folder.getAbsolutePath(),"UTF-8") + File.separator + folder.getName() + ".experiment");
         try {
             return Experiment.fromXML(new FileInputStream(experiment));
         }catch(Exception e){

@@ -1,6 +1,7 @@
 package autoweka.tools;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 import autoweka.Experiment;
@@ -17,7 +18,7 @@ class ExperimentRunner
 {
     final static Logger log = LoggerFactory.getLogger(ExperimentRunner.class);
 
-    public static void main(String[] args)
+    public static void main(String[] args) throws UnsupportedEncodingException
     {
         if(args.length != 2){
             log.error("ExperimentRunner requires 2 arguments - the experiment folder and the seed");
@@ -30,7 +31,13 @@ class ExperimentRunner
             log.error("The first argument does not appear to be an experiment folder");
             System.exit(1);
         }
-        String expFolder = URLDecoder.decode(expFolderFile.getAbsolutePath());
+        String expFolder = ".";
+		try {
+			expFolder = URLDecoder.decode(expFolderFile.getAbsolutePath(),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         String expName = expFolderFile.getName();
 
         //Remove the old trajectory and model

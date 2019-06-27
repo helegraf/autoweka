@@ -6,6 +6,7 @@ import autoweka.Trajectory;
 import autoweka.TrajectoryParser;
 import autoweka.Experiment;
 import java.io.FileInputStream;
+import java.io.UnsupportedEncodingException;
 import java.io.File;
 import java.net.URLDecoder;
 import java.util.regex.Pattern;
@@ -30,7 +31,12 @@ public class SMACTrajectoryParser extends TrajectoryParser
     public Trajectory parseTrajectory(Experiment experiment, File folder, String seed)
     {
         //Load up the conditional params
-        ClassParams params = new ClassParams(URLDecoder.decode(folder.getAbsolutePath()) + File.separator + "autoweka.params");
+        ClassParams params;
+		try {
+			params = new ClassParams(URLDecoder.decode(folder.getAbsolutePath(), "UTF-8") + File.separator + "autoweka.params");
+		} catch (UnsupportedEncodingException e1) {
+			throw new RuntimeException("Failed to parse trajectory.");
+		}
 
         Trajectory traj = new Trajectory(seed);
 
@@ -38,13 +44,18 @@ public class SMACTrajectoryParser extends TrajectoryParser
         {
             //We need to go get this trajectory file
             String trajFileName = "";
-            File[] files = new File(URLDecoder.decode(folder.getAbsolutePath()) + File.separator + "out" + File.separator + "autoweka").listFiles();
+            System.err.println("path b4: " + folder);
+            String path = URLDecoder.decode(folder.getAbsolutePath(), "UTF-8") + File.separator + "out" + File.separator + "autoweka";
+            File[] files = new File(path).listFiles();
+            System.err.println("Getting trajectory from path: " + path);
+            
+            log.warn("try to parses path {}",path);
             for(File f: files)
             {
                 String s = f.getName();
                 if(s.startsWith("traj") && s.endsWith("-" + seed + ".txt"))
                 {
-                    trajFileName = URLDecoder.decode(f.getAbsolutePath());
+                    trajFileName = URLDecoder.decode(f.getAbsolutePath(), "UTF-8");
                     break;
                 }
             }
@@ -80,7 +91,7 @@ public class SMACTrajectoryParser extends TrajectoryParser
             //Now, we need to parse the runs_and_results file to get some other statistics
             String runsAndResultsFileName = null;
             int runsAndResultsIteration = -1;
-            files = new File(URLDecoder.decode(folder.getAbsolutePath()) + File.separator + "out" + File.separator + "autoweka" + File.separator + "state-run" + seed + File.separator).listFiles();
+            files = new File(URLDecoder.decode(folder.getAbsolutePath(), "UTF-8") + File.separator + "out" + File.separator + "autoweka" + File.separator + "state-run" + seed + File.separator).listFiles();
             for(File f: files)
             {
                 String s = f.getName();
@@ -89,7 +100,7 @@ public class SMACTrajectoryParser extends TrajectoryParser
                 {
                     int itr = Integer.parseInt(matcher.group(1));
                     if(itr > runsAndResultsIteration){
-                        runsAndResultsFileName = URLDecoder.decode(f.getAbsolutePath());
+                        runsAndResultsFileName = URLDecoder.decode(f.getAbsolutePath(), "UTF-8");
                         runsAndResultsIteration = itr;
                     }
                 }
@@ -138,6 +149,7 @@ public class SMACTrajectoryParser extends TrajectoryParser
         }
         catch(Exception e)
         {
+        	System.out.println("Exception is " + e);
             throw new RuntimeException("Failed to parse trajectory", e);
         }
         return traj;

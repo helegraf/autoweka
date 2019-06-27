@@ -2,6 +2,7 @@ package autoweka;
 
 import javax.xml.bind.annotation.*;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,8 +65,9 @@ public class ExperimentBatch extends XmlSerializable
         /**
          * Gets the dataset string out of this component
          * @return The dataset string.
+         * @throws UnsupportedEncodingException 
          */
-        public String getDatasetString()
+        public String getDatasetString() throws UnsupportedEncodingException
         {
             int count = 0;
             count += (zipFile != null) ? 1 : 0;
@@ -80,14 +82,14 @@ public class ExperimentBatch extends XmlSerializable
             if(zipFile != null)
             {
                 props.setProperty("type", "zipFile");
-                props.setProperty("zipFile", URLDecoder.decode(new File(zipFile).getAbsolutePath()));
+                props.setProperty("zipFile", URLDecoder.decode(new File(zipFile).getAbsolutePath(),"UTF-8"));
             }
             
             if(trainArff != null && testArff != null) 
             {
                 props.setProperty("type", "trainTestArff");
-                props.setProperty("trainArff", URLDecoder.decode(new File(trainArff).getAbsolutePath()));
-                props.setProperty("testArff", URLDecoder.decode(new File(testArff).getAbsolutePath()));
+                props.setProperty("trainArff", URLDecoder.decode(new File(trainArff).getAbsolutePath(),"UTF-8"));
+                props.setProperty("testArff", URLDecoder.decode(new File(testArff).getAbsolutePath(),"UTF-8"));
             }
 
             if(props.getProperty("type") == null)
@@ -219,8 +221,9 @@ public class ExperimentBatch extends XmlSerializable
      * @param expComp The experiment component.
      * @param datasetComp The dataset component.
      * @return The experiment.
+     * @throws UnsupportedEncodingException 
      */
-    public static Experiment createExperiment(ExperimentComponent expComp, DatasetComponent datasetComp)
+    public static Experiment createExperiment(ExperimentComponent expComp, DatasetComponent datasetComp) throws UnsupportedEncodingException
     {
         Experiment exp = new Experiment();
         exp.name = expComp.name + "-" + datasetComp.name;

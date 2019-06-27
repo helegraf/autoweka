@@ -1,0 +1,4 @@
+autoEnabled=false
+eclipse.preferences.version=1
+extraProperties=
+fileExclusions=FILE\:src/java/weka/classifiers/meta/AutoWEKAClassifier.java

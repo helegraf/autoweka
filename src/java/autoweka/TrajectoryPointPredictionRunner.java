@@ -1,13 +1,14 @@
 package autoweka;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
 import java.net.URLDecoder;
 
 public class TrajectoryPointPredictionRunner
 {
-    public static void main(String[] args)
+    public static void main(String[] args) throws UnsupportedEncodingException
     {
         String targetSeed = null;
         String trajGroupName = null;
@@ -74,9 +75,9 @@ public class TrajectoryPointPredictionRunner
             //Get the point where the tuner time hits us
             Trajectory.Point point = traj.getPointAtTime(timeout);
             Properties props = new Properties();
-            props.put("predictionsFileName", URLDecoder.decode(experimentDir.getAbsolutePath()) + "/predictions." + traj.getSeed() + ".csv");
+            props.put("predictionsFileName", URLDecoder.decode(experimentDir.getAbsolutePath(),"UTF-8") + "/predictions." + traj.getSeed() + ".csv");
             if(saveModel)
-                props.put("modelOutputFilePrefix", URLDecoder.decode(experimentDir.getAbsolutePath()) + "/trained." + traj.getSeed());
+                props.put("modelOutputFilePrefix", URLDecoder.decode(experimentDir.getAbsolutePath(),"UTF-8") + "/trained." + traj.getSeed());
             SubProcessWrapper.getErrorAndTime(experimentDir, experiment, instance, point.getArgs(), traj.getSeed(), props);
         }
     }

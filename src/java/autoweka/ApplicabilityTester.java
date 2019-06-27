@@ -84,6 +84,7 @@ public class ApplicabilityTester
      */
     public static List<ClassParams> getApplicableAttributeEvaluators(Instances instances, String paramDirName)
     {
+    	System.out.println("searching for attributs in" + paramDirName);
         return getApplicable(instances, paramDirName + File.separator + "attribselection" + File.separator + "eval" + File.separator, Testable.ATTRIBUTE_EVAL, null, null);
     }
 
@@ -125,13 +126,17 @@ public class ApplicabilityTester
 
         for(String name: names)
         {
-            if(allowed != null && !allowed.contains(name))
-                continue;
+            if(allowed != null && !allowed.contains(name)) {
+            	continue;
+            }
+                
             if(isApplicable(name, instances, options, type))
             {
                 goodMethods.add(new ClassParams(paramDirName + File.separatorChar + name + ".params"));
+            }else {
             }
         }
+        System.out.println(goodMethods);
         return goodMethods;
     }
 

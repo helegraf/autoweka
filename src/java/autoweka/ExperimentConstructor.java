@@ -2,6 +2,7 @@ package autoweka;
 
 import weka.core.Instances;
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -81,8 +82,9 @@ public abstract class ExperimentConstructor
      * You can specify all the options that are in an XML file by using the same XML tag name preceeded with two dashes
      *
      * @param args Any arguments.
+     * @throws UnsupportedEncodingException 
      */
-    public static void main(String[] args)
+    public static void main(String[] args) throws UnsupportedEncodingException
     {
         if(args.length < 0)
         {
@@ -133,7 +135,7 @@ public abstract class ExperimentConstructor
         }
     }
 
-    public static void buildSingle(String builderClassName, Experiment exp, List<String> args)
+    public static void buildSingle(String builderClassName, Experiment exp, List<String> args) throws UnsupportedEncodingException
     {
         exp.validate();
 
@@ -158,7 +160,7 @@ public abstract class ExperimentConstructor
         builder.run(exp, new LinkedList<String>(args));
     }
 
-    private void run(Experiment exp, List<String> args)
+    private void run(Experiment exp, List<String> args) throws UnsupportedEncodingException
     {
         //See if we can load up this constructor's canonical class name's props file
         mProperties = new Properties();
@@ -234,7 +236,7 @@ public abstract class ExperimentConstructor
         Util.makePath(mExperimentPath + File.separator + mExperiment.name);
 
         //Generate all the stuff that needs to be created alongside the experiment file
-        String absExperimentDir = URLDecoder.decode(new File(mExperimentPath + File.separator + mExperiment.name + File.separator).getAbsolutePath()) + File.separator;
+        String absExperimentDir = URLDecoder.decode(new File(mExperimentPath + File.separator + mExperiment.name + File.separator).getAbsolutePath(),"UTF-8") + File.separator;
         prepareExperiment(absExperimentDir);
 
         //Populate the experiment object

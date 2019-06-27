@@ -37,7 +37,7 @@
     <!-- Compile all the Autoweka code -->
     <target name="compile">
         <mkdir dir="${class.dir}"/>
-        <javac srcdir="src/java" destdir="${class.dir}" classpathref="classpath" includeantruntime="false" target="1.6" source="1.6" debug="true" />
+        <javac srcdir="src/java" destdir="${class.dir}" classpathref="classpath" includeantruntime="false" target="1.8" source="1.8" debug="true" />
         <copy todir="${class.dir}">
             <fileset dir="src/java" includes="**/*.yml"/>
             <fileset dir="src/java" includes="**/*.png"/>
@@ -62,7 +62,10 @@
 
     <!-- Build the actual jar -->
     <target name="jar" depends='compile'>
-        <jar destfile="autoweka.jar" basedir="${class.dir}">
+        <jar destfile="autoweka.jar" basedir="${class.dir}" zip64Mode="always">
+        	<manifest>
+        		<attribute name="Main-Class" value="experiments.EmpiricalRankerAutoWEKAExperimenter" />
+        	</manifest>
             <zipfileset dir="lib" includes="*.properties" />
             <zipgroupfileset dir="lib" includes="*.jar" />
         </jar>
@@ -88,7 +91,7 @@
     <!-- Run some tests -->
     <target name="compile-tests" depends="jar">
         <mkdir dir="${testclass.dir}"/>
-        <javac srcdir="test/java" destdir="${testclass.dir}" classpathref="test.classpath" includeantruntime="false" target="1.6"  source="1.6" debug="true"/>
+        <javac srcdir="test/java" destdir="${testclass.dir}" classpathref="test.classpath" includeantruntime="false" target="1.8"  source="1.8" debug="true"/>
     </target>
 
     <!-- Run some tests -->

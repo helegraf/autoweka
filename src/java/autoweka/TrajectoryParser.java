@@ -32,8 +32,9 @@ public abstract class TrajectoryParser
         if(args[0].equals("-batch"))
         {
             //We're in batch mode, and we need to do everything
-            for(String arg: args)
+            for(String arg: args) {
                 experimentFolders.add(arg);
+            }
         }
         else
         {

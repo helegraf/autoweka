@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
 import java.util.Arrays;
@@ -187,9 +188,9 @@ public class Util
         }
     }
 
-    static public String getAbsoluteClasspath()
+    static public String getAbsoluteClasspath() throws UnsupportedEncodingException
     {
-        return System.getProperty("java.class.path") + java.io.File.pathSeparatorChar + URLDecoder.decode(Util.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+        return System.getProperty("java.class.path") + java.io.File.pathSeparatorChar + URLDecoder.decode(Util.class.getProtectionDomain().getCodeSource().getLocation().getPath(),"UTF-8");
     }
 
     /**
@@ -207,8 +208,9 @@ public class Util
      *
      * @param executableName The executable to look for.
      * @return The executable file.
+     * @throws UnsupportedEncodingException 
      */
-    public static File findExecutableOnPath(String executableName)
+    public static File findExecutableOnPath(String executableName) throws UnsupportedEncodingException
     {
         //Check, did they specify something we can resolve?
         File fullyQualifiedExecutable = null;
@@ -313,8 +315,9 @@ public class Util
      *
      * @param path Th path to expand.
      * @return The expanded path.
+     * @throws UnsupportedEncodingException 
      */
-    public static String expandPath(String path)
+    public static String expandPath(String path) throws UnsupportedEncodingException
     {
         if(System.getProperty("os.name").toLowerCase().indexOf("win") == 0){
             String exp = path;
@@ -339,7 +342,7 @@ public class Util
                 log.warn("Failed to expand path {}", path, ex);
             }
             File f = new File(exp);
-            path = URLDecoder.decode(f.getAbsolutePath());
+            path = URLDecoder.decode(f.getAbsolutePath(),"UTF-8");
         }
         else //We're probably on a posix system....
         {
@@ -668,31 +671,50 @@ public class Util
     private static boolean msFailedToFindDistributionOnce = false;
     public static String getAutoWekaDistributionPath()
     {
-        String locStr = URLDecoder.decode(Util.class.getClassLoader().getResource(Util.class.getCanonicalName().replaceAll("\\.", "/") + ".class").toString());
+    	try {
+			return URLDecoder.decode(new File(".").getAbsolutePath(),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+		      log.warn("Could not auto-detect the location of your Auto-WEKA install - have you moved the classes away from the 'params' diectory?");
+		      return ".";
+		}
+    	
+//
+//		try {
+//			
+//			String locStr = URLDecoder.decode(Util.class.getClassLoader().getResource(Util.class.getCanonicalName().replaceAll("\\.", "/") + ".class").toString(),"UTF-8");
+//
+//
+//        File dir;
+//        if(locStr.startsWith("jar")){
+//            dir = new File(locStr.substring(9,locStr.lastIndexOf("!")));
+//        }else{
+//            dir = new File(locStr);
+//        }
+//
+//        //Walk up the path of the directory file hunting this one down
+//        while(dir != null){
+//            File paramDir = new File(URLDecoder.decode(dir.getAbsolutePath(),"UTF-8") + File.separator + "params");
+//            if(paramDir.exists() && paramDir.isDirectory())
+//            {
+//                log.trace("Found install dir: {}", URLDecoder.decode(dir.getAbsolutePath(),"UTF-8"));
+//                return URLDecoder.decode(dir.getAbsolutePath(),"UTF-8");
+//            }
+//
+//            dir = dir.getParentFile();
+//        }
+//        if(!msFailedToFindDistributionOnce){
+//            log.warn("Could not auto-detect the location of your Auto-WEKA install - have you moved the classes away from the 'params' diectory?");
+//            msFailedToFindDistributionOnce = true;
+//        }
+//        
+//		} catch (UnsupportedEncodingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//        return ".";
+//        
 
-        File dir;
-        if(locStr.startsWith("jar")){
-            dir = new File(locStr.substring(9,locStr.lastIndexOf("!")));
-        }else{
-            dir = new File(locStr);
-        }
-
-        //Walk up the path of the directory file hunting this one down
-        while(dir != null){
-            File paramDir = new File(URLDecoder.decode(dir.getAbsolutePath()) + File.separator + "params");
-            if(paramDir.exists() && paramDir.isDirectory())
-            {
-                log.trace("Found install dir: {}", URLDecoder.decode(dir.getAbsolutePath()));
-                return URLDecoder.decode(dir.getAbsolutePath());
-            }
-
-            dir = dir.getParentFile();
-        }
-        if(!msFailedToFindDistributionOnce){
-            log.warn("Could not auto-detect the location of your Auto-WEKA install - have you moved the classes away from the 'params' diectory?");
-            msFailedToFindDistributionOnce = true;
-        }
-        return ".";
     }
 
     /**

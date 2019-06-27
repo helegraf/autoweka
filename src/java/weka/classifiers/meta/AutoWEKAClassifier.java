@@ -16,73 +16,55 @@
 
 package weka.classifiers.meta;
 
-import weka.attributeSelection.ASEvaluation;
-import weka.attributeSelection.ASSearch;
-import weka.attributeSelection.AttributeSelection;
-
-import weka.classifiers.AbstractClassifier;
-import weka.classifiers.Classifier;
-import weka.classifiers.Evaluation;
-
-import weka.core.Attribute;
-import weka.core.AdditionalMeasureProducer;
-import weka.core.Capabilities;
-import weka.core.Capabilities.Capability;
-import weka.core.converters.ArffSaver;
-import weka.core.Drawable;
-import weka.core.FastVector;
-import weka.core.Instance;
-import weka.core.Instances;
-import weka.core.Option;
-import weka.core.TechnicalInformation.Field;
-import weka.core.TechnicalInformation.Type;
-import weka.core.TechnicalInformation;
-import weka.core.TechnicalInformationHandler;
-import weka.core.Utils;
-
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.io.FileNotFoundException;
-
-
-import java.nio.file.Files;
-
+import java.io.InputStreamReader;
 import java.net.URLDecoder;
-
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.NoSuchElementException;
 import java.util.Properties;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.Vector;
-import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import autoweka.Experiment;
-import autoweka.ExperimentConstructor;
-import autoweka.InstanceGenerator;
-import autoweka.instancegenerators.CrossValidation;
-import autoweka.Util;
-import autoweka.Trajectory;
-import autoweka.TrajectoryGroup;
-import autoweka.TrajectoryMerger;
-
-import autoweka.tools.GetBestFromTrajectoryGroup;
-
 import autoweka.Configuration;
 import autoweka.ConfigurationCollection;
 import autoweka.ConfigurationRanker;
+import autoweka.Experiment;
+import autoweka.ExperimentConstructor;
+import autoweka.Trajectory;
+import autoweka.TrajectoryGroup;
+import autoweka.TrajectoryMerger;
+import autoweka.Util;
+import autoweka.tools.GetBestFromTrajectoryGroup;
+import weka.attributeSelection.ASEvaluation;
+import weka.attributeSelection.ASSearch;
+import weka.attributeSelection.AttributeSelection;
+import weka.classifiers.AbstractClassifier;
+import weka.classifiers.Classifier;
+import weka.classifiers.Evaluation;
+import weka.core.AdditionalMeasureProducer;
+import weka.core.Capabilities;
+import weka.core.Capabilities.Capability;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.Option;
+import weka.core.TechnicalInformation;
+import weka.core.TechnicalInformation.Field;
+import weka.core.TechnicalInformation.Type;
+import weka.core.Utils;
+import weka.core.converters.ArffSaver;
 
 /**
  * Auto-WEKA interface for WEKA.
@@ -114,7 +96,7 @@ public class AutoWEKAClassifier extends AbstractClassifier implements Additional
     static final Resampling DEFAULT_RESAMPLING = Resampling.CrossValidation;
 
     /** Available metrics. */
-    static enum Metric {
+    public static enum Metric {
         areaAboveROC,
         areaUnderROC,
         avgCost,
@@ -218,6 +200,8 @@ public class AutoWEKAClassifier extends AbstractClassifier implements Additional
     protected int timeLimit = DEFAULT_TIME_LIMIT;
     /** The memory limit for running classifiers. */
     protected int memLimit = DEFAULT_MEM_LIMIT;
+    
+    protected int singleAlgorithmTimeLimitSeconds = DEFAULT_TIME_LIMIT * 5;
 
     /** The number of best configurations to return as output. */
     protected int nBestConfigs = DEFAULT_N_BEST;
@@ -313,7 +297,7 @@ public class AutoWEKAClassifier extends AbstractClassifier implements Additional
             File fp = new File(msExperimentPaths[i] + expName + File.separator + expName + ".arff");
             saver.setFile(fp);
             saver.writeBatch();
-            props.setProperty("trainArff", URLDecoder.decode(fp.getAbsolutePath()));
+            props.setProperty("trainArff", URLDecoder.decode(fp.getAbsolutePath(),"UTF-8"));
             props.setProperty("classIndex", String.valueOf(is.classIndex()));
             exp.datasetString = Util.propertiesToString(props);
             exp.instanceGenerator = "autoweka.instancegenerators." + String.valueOf(resampling);
@@ -322,7 +306,7 @@ public class AutoWEKAClassifier extends AbstractClassifier implements Additional
 
             exp.attributeSelectionTimeout = timeLimit * 1;
             exp.tunerTimeout = timeLimit * 50;
-            exp.trainTimeout = timeLimit * 5;
+            exp.trainTimeout = singleAlgorithmTimeLimitSeconds;
 
             exp.memory = memLimit + "m";
             exp.extraPropsString = extraArgs;
@@ -1107,4 +1091,44 @@ public class AutoWEKAClassifier extends AbstractClassifier implements Additional
                     + " not supported (Auto-WEKA)");
         }
   }
+
+	public Classifier getClassifier() {
+		return classifier;
+	}
+
+	public AttributeSelection getAs() {
+		return as;
+	}
+
+	public String getClassifierClass() {
+		return classifierClass;
+	}
+
+	public String[] getClassifierArgs() {
+		return classifierArgs;
+	}
+
+	public String getAttributeSearchClass() {
+		return attributeSearchClass;
+	}
+
+	public String[] getAttributeSearchArgs() {
+		return attributeSearchArgs;
+	}
+
+	public String getAttributeEvalClass() {
+		return attributeEvalClass;
+	}
+
+	public String[] getAttributeEvalArgs() {
+		return attributeEvalArgs;
+	}
+
+	public int getSingleAlgorithmTimeLimitSeconds() {
+		return singleAlgorithmTimeLimitSeconds;
+	}
+
+	public void setSingleAlgorithmTimeLimitSeconds(int singleAlgorithmTimeLimitSeconds) {
+		this.singleAlgorithmTimeLimitSeconds = singleAlgorithmTimeLimitSeconds;
+	}
 }

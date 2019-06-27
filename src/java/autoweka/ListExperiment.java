@@ -3,6 +3,7 @@ package autoweka;
 import javax.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.io.File;
 import java.net.URLDecoder;
@@ -57,7 +58,7 @@ class ListExperiment extends XmlSerializable
             throw new RuntimeException("Need an -instanceGenerator");
     }
 
-    public static void main(String[] args)
+    public static void main(String[] args) throws UnsupportedEncodingException
     {
         int target = -1;
         boolean perInstance = false;
@@ -85,7 +86,7 @@ class ListExperiment extends XmlSerializable
                 if(experiment != null)
                     throw new RuntimeException("Only one ListExperiment can be specified at a time");
                 experimentDir = new File(args[i]).getAbsoluteFile();
-                experiment = ListExperiment.fromXML(URLDecoder.decode(experimentDir.getAbsolutePath()) + File.separator + experimentDir.getName() + ".listexperiment");
+                experiment = ListExperiment.fromXML(URLDecoder.decode(experimentDir.getAbsolutePath(),"UTF-8") + File.separator + experimentDir.getName() + ".listexperiment");
             }
         }
 

@@ -2,6 +2,7 @@ package autoweka;
 
 import javax.xml.bind.annotation.*;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -99,8 +100,9 @@ class ListExperimentBatch extends XmlSerializable
 
     /**
      * Creates a ListExperiment out of the corresponding bits
+     * @throws UnsupportedEncodingException 
      */
-    public static ListExperiment createListExperiment(ListExperimentComponent expComp, ExperimentBatch.DatasetComponent datasetComp)
+    public static ListExperiment createListExperiment(ListExperimentComponent expComp, ExperimentBatch.DatasetComponent datasetComp) throws UnsupportedEncodingException
     {
         ListExperiment exp = new ListExperiment();
         exp.name = expComp.name + "-" + datasetComp.name;
